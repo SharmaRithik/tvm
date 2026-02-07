@@ -1,14 +1,12 @@
 # WebGPU Matmul Shader Generation
 
-Generate optimized WGSL compute shaders for FP32 matrix multiplication using TVM.
+Generate WGSL compute shaders for FP32 matrix multiplication using TVM's compiler.
 
 ## Build
 
 ```bash
 ./webgpu/build.sh
 ```
-
-Requires: emscripten (`emcc`), node, npm, and a native TVM build with LLVM.
 
 ## Test
 
@@ -19,22 +17,19 @@ Requires: emscripten (`emcc`), node, npm, and a native TVM build with LLVM.
 ## Generate Shaders
 
 ```bash
-# Single variant (default: optimized)
+# Compiler-optimized (DLight auto-schedule)
 python webgpu/generate_matmul.py
 
-# All variants to files
+# All variants
 python webgpu/generate_matmul.py --all --outdir webgpu/generated-shaders
 ```
 
 ### Variants
 
-| Variant | Threads | Register tile | Shared mem | Description |
-|---------|---------|--------------|------------|-------------|
-| `naive` | 16x16 | 1x1 | No | Baseline |
-| `optimized` | 8x8 | 4x4 | Yes | Default optimized |
-| `large_tile` | 16x16 | 4x4 | Yes | Larger output tile |
-| `deep_k` | 8x8 | 4x4 | Yes | Deeper reduction |
-| `wide_register` | 4x4 | 8x8 | Yes | More work per thread |
-| `tall_register` | 16x8 | 8x2 | Yes | Tall micro-kernel |
+| Variant | Description |
+|---------|-------------|
+| `dlight` | TVM DLight compiler-scheduled (shared mem, register tiling, cooperative fetch) |
+| `dlight_transB` | Same as above, transposed B layout |
+| `naive` | Baseline: 1 element/thread, no shared memory |
 
 Pre-generated shaders for 1024x1024x1024 are in `generated-shaders/`.

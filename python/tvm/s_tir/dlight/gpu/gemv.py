@@ -167,8 +167,12 @@ class GEMV(GPUScheduleRule):
             # number of dimensions of A_q
             Aq_local = sch.cache_read(rf, read_buffer_index=1, storage_scope="local")
             sch.compute_at(Aq_local, r, preserve_unit_loops=True)
-            s_local, r_local = sch.get_loops(block=Aq_local)[-2:]
-            fused_load = sch.fuse(s_local, r_local)
+            ndim = len(sch.get(Aq_local).reads[0].buffer.shape)
+            if ndim >= 2:
+                s_local, r_local = sch.get_loops(block=Aq_local)[-2:]
+                fused_load = sch.fuse(s_local, r_local)
+            else:
+                fused_load = sch.get_loops(block=Aq_local)[-1]
             aq_vec_len = max(1, VEC_LOAD // get_bytes(sch.get(Aq_local).reads[0].buffer.dtype))
             fused_load, vec_load = sch.split(
                 fused_load, factors=[None, aq_vec_len], preserve_unit_iters=True

@@ -1,7 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-TVM_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+TVM_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+# Auto-activate environment if env.sh exists and not already set up
+if [[ -z "${PYTHONPATH:-}" ]] && [[ -f "$SCRIPT_DIR/env.sh" ]]; then
+  # shellcheck disable=SC1091
+  source "$SCRIPT_DIR/env.sh"
+fi
+
 FAILED=0
 
 echo "=== WebGPU codegen smoke test ==="

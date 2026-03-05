@@ -86,6 +86,8 @@ celerybeat-schedule
 
 # virtualenv
 venv/
+.venv/
+webgpu/env.sh
 ENV/
 
 # Spyder project settings
